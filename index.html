@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Kettlebell EMOM Timer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            surface: '#0B0F17',
+            card: '#131A26',
+            cardHover: '#1B2434',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Prevent pull-to-refresh and double-tap zoom issues on mobile */
+    html, body {
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Smooth SVG ring transition */
+    #progress-ring {
+      transition: stroke 0.25s ease;
+    }
+    /* Custom subtle scrollbar for movement list */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2D3748;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-surface text-slate-100 font-sans min-h-[100dvh] flex flex-col items-center justify-center selection:bg-emerald-500/30">
+
+  <!-- Main Mobile Container -->
+  <main class="w-full max-w-md min-h-[100dvh] flex flex-col justify-between px-4 py-4 sm:py-6 relative">
+
+    <!-- ==================== 1. PRE-WORKOUT SETUP SCREEN ==================== -->
+    <section id="setup-screen" class="flex flex-col flex-1 justify-between gap-4">
+      <!-- Header -->
+      <header class="flex items-center justify-between pt-1">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <!-- Kettlebell SVG Icon -->
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 8V6a4 4 0 0 1 8 0v2" />
+              <path d="M6.5 8h11a2 2 0 0 1 1.9 1.4l1.2 4A6 6 0 0 1 14.8 21H9.2a6 6 0 0 1-5.8-7.6l1.2-4A2 2 0 0 1 6.5 8Z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-extrabold tracking-tight text-white leading-tight">EMOM Timer</h1>
+            <p class="text-xs text-slate-400 font-medium">Kettlebell Interval Trainer</p>
+          </div>
+        </div>
+        <div id="setup-total-badge" class="px-3 py-1.5 rounded-full bg-card border border-slate-800 text-xs font-bold text-emerald-400 tabular-nums">
+          Total: 20:00
+        </div>
+      </header>
+
+      <!-- Setup Controls -->
+      <div class="flex flex-col gap-3.5 flex-1 justify-center">
+
+        <!-- Total Rounds Card -->
+        <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Rounds</span>
+            <span class="text-xs text-slate-500 font-medium">1–99 rounds</span>
+          </div>
+          <!-- Stepper -->
+          <div class="flex items-center justify-between gap-4 mb-3.5">
+            <button type="button" id="rounds-dec" aria-label="Decrease rounds"
+              class="w-14 h-12 rounded-xl bg-slate-800/90 hover:bg-slate-700 active:scale-95 transition flex items-center justify-center text-2xl font-bold text-slate-200 border border-slate-700/60">
+              −
+            </button>
+            <div class="text-center">
+              <span id="rounds-display" class="text-4xl font-black text-white tabular-nums tracking-tight">20</span>
+              <span class="block text-[11px] font-semibold uppercase tracking-widest text-slate-400 -mt-0.5">Rounds</span>
+            </div>
+            <button type="button" id="rounds-inc" aria-label="Increase rounds"
+              class="w-14 h-12 rounded-xl bg-slate-800/90 hover:bg-slate-700 active:scale-95 transition flex items-center justify-center text-2xl font-bold text-slate-200 border border-slate-700/60">
+              +
+            </button>
+          </div>
+          <!-- Quick Presets -->
+          <div class="grid grid-cols-5 gap-2" id="rounds-presets">
+            <button type="button" data-rounds="10" class="preset-round py-2 rounded-xl text-xs font-bold border transition active:scale-95">10</button>
+            <button type="button" data-rounds="15" class="preset-round py-2 rounded-xl text-xs font-bold border transition active:scale-95">15</button>
+            <button type="button" data-rounds="20" class="preset-round py-2 rounded-xl text-xs font-bold border transition active:scale-95">20</button>
+            <button type="button" data-rounds="30" class="preset-round py-2 rounded-xl text-xs font-bold border transition active:scale-95">30</button>
+            <button type="button" data-rounds="40" class="preset-round py-2 rounded-xl text-xs font-bold border transition active:scale-95">40</button>
+          </div>
+        </div>
+
+        <!-- Interval Length & Get Ready Grid -->
+        <div class="grid grid-cols-1 gap-3.5">
+          <!-- Interval Length -->
+          <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interval Length</span>
+              <span id="interval-label" class="text-xs font-semibold text-emerald-400">EMOM (60s)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2" id="interval-presets">
+              <button type="button" data-interval="45" class="preset-interval py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">45s</button>
+              <button type="button" data-interval="60" class="preset-interval py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">60s</button>
+              <button type="button" data-interval="90" class="preset-interval py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">90s</button>
+              <button type="button" data-interval="120" class="preset-interval py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">E2MOM</button>
+            </div>
+          </div>
+
+          <!-- Get Ready Countdown -->
+          <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Get Ready Countdown</span>
+              <span class="text-xs font-medium text-amber-400">Pre-start</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2" id="prep-presets">
+              <button type="button" data-prep="0" class="preset-prep py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">Off</button>
+              <button type="button" data-prep="5" class="preset-prep py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">5s</button>
+              <button type="button" data-prep="10" class="preset-prep py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">10s</button>
+              <button type="button" data-prep="15" class="preset-prep py-2.5 rounded-xl text-xs font-bold border transition active:scale-95">15s</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional Kettlebell Movements -->
+        <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Movements <span class="text-slate-500 font-normal normal-case">(Optional, rotates per round)</span></span>
+          </div>
+          <div class="flex gap-2">
+            <input id="movement-input" type="text" maxlength="40" placeholder="e.g. 15 KB Swings, 8 Cleans..."
+              class="flex-1 bg-surface border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition" />
+            <button type="button" id="add-movement-btn"
+              class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-xs font-bold text-emerald-400 transition">
+              Add
+            </button>
+          </div>
+          <!-- Movement Chips -->
+          <div id="movement-list" class="flex flex-wrap gap-1.5 mt-2.5 empty:mt-0"></div>
+        </div>
+
+        <!-- Sound & Vibration Toggles -->
+        <div class="grid grid-cols-2 gap-3">
+          <button type="button" id="toggle-sound"
+            class="flex items-center justify-between bg-card border border-slate-800/80 rounded-2xl px-4 py-3 active:scale-[0.98] transition">
+            <div class="flex items-center gap-2.5">
+              <span id="sound-icon" class="text-emerald-400">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
+                </svg>
+              </span>
+              <span class="text-xs font-bold text-slate-200">Sound</span>
+            </div>
+            <span id="sound-status" class="text-[11px] font-extrabold uppercase text-emerald-400">ON</span>
+          </button>
+
+          <button type="button" id="toggle-vibrate"
+            class="flex items-center justify-between bg-card border border-slate-800/80 rounded-2xl px-4 py-3 active:scale-[0.98] transition">
+            <div class="flex items-center gap-2.5">
+              <span id="vibrate-icon" class="text-emerald-400">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </span>
+              <span class="text-xs font-bold text-slate-200">Vibrate</span>
+            </div>
+            <span id="vibrate-status" class="text-[11px] font-extrabold uppercase text-emerald-400">ON</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Start Workout CTA -->
+      <div class="pt-1 pb-1">
+        <button type="button" id="start-workout-btn"
+          class="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black text-lg tracking-wide shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          START WORKOUT
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== 2. ACTIVE TIMER SCREEN ==================== -->
+    <section id="timer-screen" class="hidden flex-col flex-1 justify-between py-2">
+      <!-- Top Bar: Round Badge & Wake Lock / Mute -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span id="round-badge" class="px-3.5 py-1.5 rounded-full bg-card border border-slate-700/80 text-sm font-extrabold text-white tabular-nums">
+            ROUND 1 / 20
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="wakelock-badge" class="hidden px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+            Screen Awake
+          </span>
+          <button type="button" id="timer-mute-btn" aria-label="Toggle sound"
+            class="w-10 h-10 rounded-xl bg-card border border-slate-800 flex items-center justify-center text-slate-300 active:scale-95 transition">
+            <!-- Icon updated dynamically -->
+          </button>
+        </div>
+      </div>
+
+      <!-- Phase Indicator & Movement -->
+      <div class="text-center mt-2">
+        <div id="phase-pill" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border transition-colors">
+          <span id="phase-dot" class="w-2 h-2 rounded-full animate-pulse"></span>
+          <span id="phase-text">GET READY</span>
+        </div>
+        <div id="active-movement-box" class="mt-3 min-h-[44px] flex flex-col items-center justify-center">
+          <p id="current-movement-text" class="text-xl font-extrabold text-white tracking-tight leading-snug"></p>
+          <p id="next-movement-text" class="text-xs font-semibold text-slate-400 mt-0.5"></p>
+        </div>
+      </div>
+
+      <!-- Center SVG Circular Progress Ring & Giant Clock -->
+      <div class="relative flex items-center justify-center my-2">
+        <svg class="w-72 h-72 sm:w-80 sm:h-80 -rotate-90 drop-shadow-2xl" viewBox="0 0 260 260">
+          <!-- Background Track -->
+          <circle cx="130" cy="130" r="114" fill="none" stroke="#1A2232" stroke-width="14" />
+          <!-- Active Progress Ring -->
+          <circle id="progress-ring" cx="130" cy="130" r="114" fill="none" stroke="#10B981" stroke-width="14"
+            stroke-linecap="round" stroke-dasharray="716.28" stroke-dashoffset="0" />
+        </svg>
+
+        <!-- Centered Clock Readout -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+          <div id="clock-display" class="text-7xl sm:text-8xl font-black tracking-tighter text-white tabular-nums leading-none">
+            00:10
+          </div>
+          <div id="sub-clock-label" class="text-xs font-bold uppercase tracking-widest text-slate-400 mt-2">
+            Seconds Left
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Elapsed / Remaining Bar -->
+      <div class="grid grid-cols-2 gap-3 bg-card border border-slate-800/80 rounded-2xl p-3.5">
+        <div class="text-center border-r border-slate-800">
+          <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400">Elapsed</span>
+          <span id="elapsed-display" class="text-lg font-extrabold text-slate-100 tabular-nums">00:00</span>
+        </div>
+        <div class="text-center">
+          <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400">Remaining</span>
+          <span id="remaining-display" class="text-lg font-extrabold text-slate-100 tabular-nums">20:00</span>
+        </div>
+      </div>
+
+      <!-- Large Thumb-Friendly Controls -->
+      <div class="flex flex-col gap-3 mt-2">
+        <div class="grid grid-cols-4 gap-2.5">
+          <!-- Prev Round -->
+          <button type="button" id="prev-round-btn" aria-label="Previous round"
+            class="h-16 rounded-2xl bg-card hover:bg-cardHover active:scale-95 border border-slate-800 flex flex-col items-center justify-center text-slate-300 transition">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+            <span class="text-[10px] font-bold uppercase mt-0.5">Prev</span>
+          </button>
+
+          <!-- Pause / Resume (Spans 2 columns for huge thumb target) -->
+          <button type="button" id="pause-resume-btn"
+            class="col-span-2 h-16 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-base tracking-wide shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition">
+            <span id="pause-resume-icon"></span>
+            <span id="pause-resume-text">PAUSE</span>
+          </button>
+
+          <!-- Next Round -->
+          <button type="button" id="next-round-btn" aria-label="Next round"
+            class="h-16 rounded-2xl bg-card hover:bg-cardHover active:scale-95 border border-slate-800 flex flex-col items-center justify-center text-slate-300 transition">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>
+            <span class="text-[10px] font-bold uppercase mt-0.5">Next</span>
+          </button>
+        </div>
+
+        <!-- Reset Button -->
+        <button type="button" id="reset-trigger-btn"
+          class="w-full py-3 rounded-xl bg-slate-900/80 hover:bg-rose-950/50 active:scale-[0.98] border border-slate-800 hover:border-rose-500/40 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-rose-400 transition">
+          Reset Workout
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== 3. WORKOUT COMPLETE SCREEN ==================== -->
+    <section id="complete-screen" class="hidden flex-col flex-1 justify-center items-center text-center gap-6 py-6">
+      <div class="w-24 h-24 rounded-full bg-emerald-500/15 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/20">
+        <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <div>
+        <h2 class="text-3xl font-black text-white tracking-tight">Workout Complete!</h2>
+        <p class="text-sm text-slate-400 mt-1 font-medium">Solid kettlebell session. Great work.</p>
+      </div>
+
+      <div class="w-full grid grid-cols-2 gap-3 bg-card border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="border-r border-slate-800 pr-2">
+          <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400">Rounds Done</span>
+          <span id="summary-rounds" class="text-3xl font-black text-emerald-400 tabular-nums mt-1 block">20</span>
+        </div>
+        <div class="pl-2">
+          <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Time</span>
+          <span id="summary-time" class="text-3xl font-black text-white tabular-nums mt-1 block">20:00</span>
+        </div>
+      </div>
+
+      <button type="button" id="restart-btn"
+        class="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black text-base tracking-wide shadow-lg shadow-emerald-500/25 transition mt-2">
+        START ANOTHER WORKOUT
+      </button>
+    </section>
+
+    <!-- ==================== INLINE RESET CONFIRMATION MODAL ==================== -->
+    <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="w-full max-w-xs bg-card border border-slate-700 rounded-2xl p-5 shadow-2xl text-center">
+        <h3 class="text-lg font-extrabold text-white">End Workout?</h3>
+        <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Your current EMOM progress will be reset and you'll return to setup.</p>
+        <div class="grid grid-cols-2 gap-2.5 mt-5">
+          <button type="button" id="cancel-reset-btn"
+            class="py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
+            Keep Going
+          </button>
+          <button type="button" id="confirm-reset-btn"
+            class="py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-xs font-black text-white transition">
+            Yes, Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    /**
+     * Kettlebell EMOM Timer Application
+     * Uses drift-compensated timestamps (performance.now), Web Audio API synthesis,
+     * Vibration API, and Screen Wake Lock API with graceful fallbacks.
+     */
+
+    // ==================== STATE ====================
+    const state = {
+      // Settings
+      totalRounds: 20,
+      intervalSec: 60,
+      prepSec: 10,
+      soundEnabled: true,
+      vibrateEnabled: true,
+      movements: [],
+
+      // Runtime
+      phase: 'SETUP', // 'SETUP' | 'PREP' | 'WORK' | 'COMPLETE'
+      isPaused: false,
+      currentRound: 1,
+      remainingMs: 0,
+      phaseDurationMs: 0,
+      lastTickTime: 0,
+      lastCueSecond: -1,
+      rafId: null,
+      wakeLock: null,
+    };
+
+    const RING_CIRCUMFERENCE = 2 * Math.PI * 114; // ~716.28
+
+    // ==================== DOM ELEMENTS ====================
+    const els = {
+      setupScreen: document.getElementById('setup-screen'),
+      timerScreen: document.getElementById('timer-screen'),
+      completeScreen: document.getElementById('complete-screen'),
+
+      // Setup
+      setupTotalBadge: document.getElementById('setup-total-badge'),
+      roundsDisplay: document.getElementById('rounds-display'),
+      roundsDec: document.getElementById('rounds-dec'),
+      roundsInc: document.getElementById('rounds-inc'),
+      roundPresetBtns: document.querySelectorAll('.preset-round'),
+      intervalLabel: document.getElementById('interval-label'),
+      intervalPresetBtns: document.querySelectorAll('.preset-interval'),
+      prepPresetBtns: document.querySelectorAll('.preset-prep'),
+      movementInput: document.getElementById('movement-input'),
+      addMovementBtn: document.getElementById('add-movement-btn'),
+      movementList: document.getElementById('movement-list'),
+      toggleSound: document.getElementById('toggle-sound'),
+      soundIcon: document.getElementById('sound-icon'),
+      soundStatus: document.getElementById('sound-status'),
+      toggleVibrate: document.getElementById('toggle-vibrate'),
+      vibrateIcon: document.getElementById('vibrate-icon'),
+      vibrateStatus: document.getElementById('vibrate-status'),
+      startWorkoutBtn: document.getElementById('start-workout-btn'),
+
+      // Active Timer
+      roundBadge: document.getElementById('round-badge'),
+      wakelockBadge: document.getElementById('wakelock-badge'),
+      timerMuteBtn: document.getElementById('timer-mute-btn'),
+      phasePill: document.getElementById('phase-pill'),
+      phaseDot: document.getElementById('phase-dot'),
+      phaseText: document.getElementById('phase-text'),
+      currentMovementText: document.getElementById('current-movement-text'),
+      nextMovementText: document.getElementById('next-movement-text'),
+      progressRing: document.getElementById('progress-ring'),
+      clockDisplay: document.getElementById('clock-display'),
+      subClockLabel: document.getElementById('sub-clock-label'),
+      elapsedDisplay: document.getElementById('elapsed-display'),
+      remainingDisplay: document.getElementById('remaining-display'),
+      prevRoundBtn: document.getElementById('prev-round-btn'),
+      pauseResumeBtn: document.getElementById('pause-resume-btn'),
+      pauseResumeIcon: document.getElementById('pause-resume-icon'),
+      pauseResumeText: document.getElementById('pause-resume-text'),
+      nextRoundBtn: document.getElementById('next-round-btn'),
+      resetTriggerBtn: document.getElementById('reset-trigger-btn'),
+
+      // Complete
+      summaryRounds: document.getElementById('summary-rounds'),
+      summaryTime: document.getElementById('summary-time'),
+      restartBtn: document.getElementById('restart-btn'),
+
+      // Modal
+      resetModal: document.getElementById('reset-modal'),
+      cancelResetBtn: document.getElementById('cancel-reset-btn'),
+      confirmResetBtn: document.getElementById('confirm-reset-btn'),
+    };
+
+    // ==================== WEB AUDIO ENGINE ====================
+    let audioCtx = null;
+
+    function initAudio() {
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      } catch (err) {
+        // Gracefully ignore audio errors on restricted devices
+      }
+    }
+
+    function playTone(freq, duration, type = 'sine', volume = 0.25, delay = 0) {
+      if (!state.soundEnabled || !audioCtx) return;
+      try {
+        const now = audioCtx.currentTime + delay;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(volume, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      } catch (err) {
+        // Ignore playback errors
+      }
+    }
+
+    function cueCountdownBeep() {
+      playTone(587.33, 0.14, 'triangle', 0.25); // D5 crisp beep
+      vibrateDevice([40]);
+    }
+
+    function cueGoBeep() {
+      playTone(1046.5, 0.32, 'sine', 0.35); // C6 bright GO tone
+      vibrateDevice([120]);
+    }
+
+    function cueFinishChime() {
+      playTone(523.25, 0.18, 'sine', 0.28, 0);    // C5
+      playTone(659.25, 0.18, 'sine', 0.28, 0.15); // E5
+      playTone(783.99, 0.20, 'sine', 0.28, 0.30); // G5
+      playTone(1046.5, 0.45, 'sine', 0.35, 0.45); // C6
+      vibrateDevice([150, 80, 150, 80, 300]);
+    }
+
+    function vibrateDevice(pattern) {
+      if (!state.vibrateEnabled) return;
+      try {
+        if (navigator.vibrate) {
+          navigator.vibrate(pattern);
+        }
+      } catch (err) {
+        // Ignore on unsupported browsers (e.g., iOS Safari)
+      }
+    }
+
+    // ==================== SCREEN WAKE LOCK ====================
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          state.wakeLock = await navigator.wakeLock.request('screen');
+          els.wakelockBadge.classList.remove('hidden');
+          state.wakeLock.addEventListener('release', () => {
+            els.wakelockBadge.classList.add('hidden');
+          });
+        }
+      } catch (err) {
+        els.wakelockBadge.classList.add('hidden');
+      }
+    }
+
+    async function releaseWakeLock() {
+      try {
+        if (state.wakeLock) {
+          await state.wakeLock.release();
+          state.wakeLock = null;
+        }
+      } catch (err) {
+        // Ignore
+      }
+      els.wakelockBadge.classList.add('hidden');
+    }
+
+    // Re-acquire wake lock if user returns to tab during active workout
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && (state.phase === 'PREP' || state.phase === 'WORK') && !state.isPaused) {
+        requestWakeLock();
+      }
+    });
+
+    // ==================== FORMATTING HELPERS ====================
+    function formatMMSS(totalSeconds) {
+      const clamped = Math.max(0, Math.ceil(totalSeconds));
+      const mins = Math.floor(clamped / 60);
+      const secs = clamped % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function formatMMSSFloor(totalSeconds) {
+      const clamped = Math.max(0, Math.floor(totalSeconds));
+      const mins = Math.floor(clamped / 60);
+      const secs = clamped % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // ==================== SETUP UI SYNC ====================
+    function renderSetupUI() {
+      els.roundsDisplay.textContent = state.totalRounds;
+      const totalWorkoutSec = state.totalRounds * state.intervalSec;
+      els.setupTotalBadge.textContent = `Total: ${formatMMSSFloor(totalWorkoutSec)}`;
+
+      // Interval label
+      const labels = { 45: '45s Intervals', 60: 'EMOM (60s)', 90: '90s Intervals', 120: 'E2MOM (120s)' };
+      els.intervalLabel.textContent = labels[state.intervalSec] || `${state.intervalSec}s`;
+
+      // Highlight round presets
+      els.roundPresetBtns.forEach(btn => {
+        const active = Number(btn.dataset.rounds) === state.totalRounds;
+        btn.className = `preset-round py-2 rounded-xl text-xs font-bold border transition active:scale-95 ${
+          active
+            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
+            : 'bg-surface border-slate-800 text-slate-400 hover:border-slate-700'
+        }`;
+      });
+
+      // Highlight interval presets
+      els.intervalPresetBtns.forEach(btn => {
+        const active = Number(btn.dataset.interval) === state.intervalSec;
+        btn.className = `preset-interval py-2.5 rounded-xl text-xs font-bold border transition active:scale-95 ${
+          active
+            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
+            : 'bg-surface border-slate-800 text-slate-400 hover:border-slate-700'
+        }`;
+      });
+
+      // Highlight prep presets
+      els.prepPresetBtns.forEach(btn => {
+        const active = Number(btn.dataset.prep) === state.prepSec;
+        btn.className = `preset-prep py-2.5 rounded-xl text-xs font-bold border transition active:scale-95 ${
+          active
+            ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+            : 'bg-surface border-slate-800 text-slate-400 hover:border-slate-700'
+        }`;
+      });
+
+      // Sound & Vibrate states
+      els.soundStatus.textContent = state.soundEnabled ? 'ON' : 'OFF';
+      els.soundStatus.className = `text-[11px] font-extrabold uppercase ${state.soundEnabled ? 'text-emerald-400' : 'text-slate-500'}`;
+      els.soundIcon.className = state.soundEnabled ? 'text-emerald-400' : 'text-slate-500';
+
+      els.vibrateStatus.textContent = state.vibrateEnabled ? 'ON' : 'OFF';
+      els.vibrateStatus.className = `text-[11px] font-extrabold uppercase ${state.vibrateEnabled ? 'text-emerald-400' : 'text-slate-500'}`;
+      els.vibrateIcon.className = state.vibrateEnabled ? 'text-emerald-400' : 'text-slate-500';
+
+      renderMovements();
+      renderTimerMuteIcon();
+    }
+
+    function renderMovements() {
+      els.movementList.innerHTML = '';
+      state.movements.forEach((move, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-200';
+        chip.innerHTML = `
+          <span class="text-emerald-400 font-bold">${idx + 1}.</span>
+          <span>${escapeHtml(move)}</span>
+          <button type="button" data-idx="${idx}" aria-label="Remove movement" class="ml-0.5 text-slate-400 hover:text-rose-400 font-bold text-sm leading-none">&times;</button>
+        `;
+        chip.querySelector('button').addEventListener('click', () => {
+          state.movements.splice(idx, 1);
+          renderMovements();
+        });
+        els.movementList.appendChild(chip);
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function renderTimerMuteIcon() {
+      if (state.soundEnabled) {
+        els.timerMuteBtn.innerHTML = `
+          <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
+          </svg>`;
+      } else {
+        els.timerMuteBtn.innerHTML = `
+          <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>`;
+      }
+    }
+
+    // ==================== SCREEN SWITCHING ====================
+    function showScreen(screenName) {
+      els.setupScreen.classList.add('hidden');
+      els.setupScreen.classList.remove('flex');
+      els.timerScreen.classList.add('hidden');
+      els.timerScreen.classList.remove('flex');
+      els.completeScreen.classList.add('hidden');
+      els.completeScreen.classList.remove('flex');
+
+      if (screenName === 'SETUP') {
+        els.setupScreen.classList.remove('hidden');
+        els.setupScreen.classList.add('flex');
+      } else if (screenName === 'TIMER') {
+        els.timerScreen.classList.remove('hidden');
+        els.timerScreen.classList.add('flex');
+      } else if (screenName === 'COMPLETE') {
+        els.completeScreen.classList.remove('hidden');
+        els.completeScreen.classList.add('flex');
+      }
+    }
+
+    // ==================== TIMER ENGINE ====================
+    function startWorkout() {
+      initAudio();
+      requestWakeLock();
+
+      state.isPaused = false;
+      state.currentRound = 1;
+      state.lastCueSecond = -1;
+
+      if (state.prepSec > 0) {
+        state.phase = 'PREP';
+        state.phaseDurationMs = state.prepSec * 1000;
+        state.remainingMs = state.phaseDurationMs;
+      } else {
+        state.phase = 'WORK';
+        state.phaseDurationMs = state.intervalSec * 1000;
+        state.remainingMs = state.phaseDurationMs;
+        cueGoBeep();
+      }
+
+      showScreen('TIMER');
+      updatePauseButtonUI();
+      updateTimerDisplay();
+
+      state.lastTickTime = performance.now();
+      cancelAnimationFrame(state.rafId);
+      state.rafId = requestAnimationFrame(timerLoop);
+    }
+
+    function timerLoop(now) {
+      if (state.phase !== 'PREP' && state.phase !== 'WORK') return;
+
+      if (!state.isPaused) {
+        const delta = now - state.lastTickTime;
+        state.remainingMs -= delta;
+
+        const secLeft = Math.ceil(state.remainingMs / 1000);
+
+        // 3-2-1 countdown audio cues
+        if (secLeft >= 1 && secLeft <= 3 && secLeft !== state.lastCueSecond) {
+          state.lastCueSecond = secLeft;
+          cueCountdownBeep();
+        }
+
+        // Phase transition when timer hits 0
+        if (state.remainingMs <= 0) {
+          handleIntervalComplete();
+        }
+      }
+
+      state.lastTickTime = now;
+      updateTimerDisplay();
+
+      if (state.phase === 'PREP' || state.phase === 'WORK') {
+        state.rafId = requestAnimationFrame(timerLoop);
+      }
+    }
+
+    function handleIntervalComplete() {
+      state.lastCueSecond = -1;
+
+      if (state.phase === 'PREP') {
+        state.phase = 'WORK';
+        state.currentRound = 1;
+        state.phaseDurationMs = state.intervalSec * 1000;
+        state.remainingMs = state.phaseDurationMs;
+        cueGoBeep();
+      } else if (state.phase === 'WORK') {
+        if (state.currentRound < state.totalRounds) {
+          state.currentRound += 1;
+          state.phaseDurationMs = state.intervalSec * 1000;
+          state.remainingMs = state.phaseDurationMs;
+          cueGoBeep();
+        } else {
+          finishWorkout();
+        }
+      }
+    }
+
+    function finishWorkout() {
+      state.phase = 'COMPLETE';
+      cancelAnimationFrame(state.rafId);
+      releaseWakeLock();
+      cueFinishChime();
+
+      els.summaryRounds.textContent = state.totalRounds;
+      els.summaryTime.textContent = formatMMSSFloor(state.totalRounds * state.intervalSec);
+      showScreen('COMPLETE');
+    }
+
+    function updateTimerDisplay() {
+      const secLeft = Math.max(0, Math.ceil(state.remainingMs / 1000));
+      const isWarning = secLeft <= 5 && secLeft > 0;
+
+      // Round badge
+      els.roundBadge.textContent = `ROUND ${state.currentRound} / ${state.totalRounds}`;
+
+      // Clock readout
+      els.clockDisplay.textContent = formatMMSS(state.remainingMs / 1000);
+
+      // Ring progress
+      const fraction = Math.max(0, Math.min(1, state.remainingMs / state.phaseDurationMs));
+      const dashOffset = RING_CIRCUMFERENCE * (1 - fraction);
+      els.progressRing.style.strokeDasharray = RING_CIRCUMFERENCE;
+      els.progressRing.style.strokeDashoffset = dashOffset;
+
+      // Colors & Phase Pill
+      if (state.isPaused) {
+        els.phaseText.textContent = 'PAUSED';
+        els.phasePill.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border bg-slate-800/80 border-slate-600 text-slate-300';
+        els.phaseDot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        els.progressRing.style.stroke = '#64748B';
+        els.clockDisplay.classList.remove('text-rose-400', 'text-amber-400');
+        els.clockDisplay.classList.add('text-slate-300');
+      } else if (state.phase === 'PREP') {
+        els.phaseText.textContent = 'GET READY';
+        els.phasePill.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border bg-amber-500/15 border-amber-500/40 text-amber-400';
+        els.phaseDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        els.progressRing.style.stroke = '#F59E0B';
+        els.clockDisplay.classList.remove('text-rose-400', 'text-slate-300');
+        els.clockDisplay.classList.add('text-amber-400');
+      } else if (isWarning) {
+        els.phaseText.textContent = `WORK • ROUND ${state.currentRound}`;
+        els.phasePill.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border bg-rose-500/15 border-rose-500/40 text-rose-400';
+        els.phaseDot.className = 'w-2 h-2 rounded-full bg-rose-500 animate-ping';
+        els.progressRing.style.stroke = '#F43F5E';
+        els.clockDisplay.classList.remove('text-amber-400', 'text-slate-300');
+        els.clockDisplay.classList.add('text-rose-400');
+      } else {
+        els.phaseText.textContent = `WORK • ROUND ${state.currentRound}`;
+        els.phasePill.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border bg-emerald-500/15 border-emerald-500/40 text-emerald-400';
+        els.phaseDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        els.progressRing.style.stroke = '#10B981';
+        els.clockDisplay.classList.remove('text-rose-400', 'text-amber-400', 'text-slate-300');
+        els.clockDisplay.classList.add('text-white');
+      }
+
+      // Movement display
+      if (state.movements.length > 0) {
+        const currentIdx = (state.currentRound - 1) % state.movements.length;
+        const nextIdx = state.currentRound % state.movements.length;
+        if (state.phase === 'PREP') {
+          els.currentMovementText.textContent = `Up First: ${state.movements[0]}`;
+          els.nextMovementText.textContent = state.movements.length > 1 ? `Then: ${state.movements[1]}` : '';
+        } else {
+          els.currentMovementText.textContent = state.movements[currentIdx];
+          if (state.currentRound < state.totalRounds && state.movements.length > 1) {
+            els.nextMovementText.textContent = `Next: ${state.movements[nextIdx]}`;
+          } else {
+            els.nextMovementText.textContent = state.currentRound === state.totalRounds ? 'Final Round!' : '';
+          }
+        }
+      } else {
+        els.currentMovementText.textContent = '';
+        els.nextMovementText.textContent = '';
+      }
+
+      // Elapsed & Remaining Workout Time
+      const totalWorkoutSec = state.totalRounds * state.intervalSec;
+      let elapsedSec = 0;
+      let remainingWorkoutSec = totalWorkoutSec;
+
+      if (state.phase === 'WORK') {
+        const completedRoundsSec = (state.currentRound - 1) * state.intervalSec;
+        const currentRoundElapsed = state.intervalSec - (state.remainingMs / 1000);
+        elapsedSec = completedRoundsSec + currentRoundElapsed;
+        remainingWorkoutSec = Math.max(0, totalWorkoutSec - elapsedSec);
+      }
+
+      els.elapsedDisplay.textContent = formatMMSSFloor(elapsedSec);
+      els.remainingDisplay.textContent = formatMMSS(remainingWorkoutSec);
+    }
+
+    function updatePauseButtonUI() {
+      if (state.isPaused) {
+        els.pauseResumeBtn.className = 'col-span-2 h-16 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-base tracking-wide shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition';
+        els.pauseResumeIcon.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+        els.pauseResumeText.textContent = 'RESUME';
+      } else {
+        els.pauseResumeBtn.className = 'col-span-2 h-16 rounded-2xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-base tracking-wide shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition';
+        els.pauseResumeIcon.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+        els.pauseResumeText.textContent = 'PAUSE';
+      }
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    // Rounds stepper & presets
+    els.roundsDec.addEventListener('click', () => {
+      if (state.totalRounds > 1) {
+        state.totalRounds -= 1;
+        renderSetupUI();
+      }
+    });
+
+    els.roundsInc.addEventListener('click', () => {
+      if (state.totalRounds < 99) {
+        state.totalRounds += 1;
+        renderSetupUI();
+      }
+    });
+
+    els.roundPresetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.totalRounds = Number(btn.dataset.rounds);
+        renderSetupUI();
+      });
+    });
+
+    // Interval presets
+    els.intervalPresetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.intervalSec = Number(btn.dataset.interval);
+        renderSetupUI();
+      });
+    });
+
+    // Prep presets
+    els.prepPresetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.prepSec = Number(btn.dataset.prep);
+        renderSetupUI();
+      });
+    });
+
+    // Add movement
+    function addMovement() {
+      const val = els.movementInput.value.trim();
+      if (!val) return;
+      state.movements.push(val);
+      els.movementInput.value = '';
+      renderMovements();
+    }
+
+    els.addMovementBtn.addEventListener('click', addMovement);
+    els.movementInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addMovement();
+      }
+    });
+
+    // Sound & Vibrate toggles
+    els.toggleSound.addEventListener('click', () => {
+      state.soundEnabled = !state.soundEnabled;
+      renderSetupUI();
+    });
+
+    els.toggleVibrate.addEventListener('click', () => {
+      state.vibrateEnabled = !state.vibrateEnabled;
+      if (state.vibrateEnabled) vibrateDevice([35]);
+      renderSetupUI();
+    });
+
+    els.timerMuteBtn.addEventListener('click', () => {
+      state.soundEnabled = !state.soundEnabled;
+      renderTimerMuteIcon();
+    });
+
+    // Start workout
+    els.startWorkoutBtn.addEventListener('click', startWorkout);
+
+    // Pause / Resume
+    els.pauseResumeBtn.addEventListener('click', () => {
+      state.isPaused = !state.isPaused;
+      state.lastTickTime = performance.now();
+      if (state.isPaused) {
+        releaseWakeLock();
+      } else {
+        initAudio();
+        requestWakeLock();
+      }
+      updatePauseButtonUI();
+      updateTimerDisplay();
+    });
+
+    // Previous Round
+    els.prevRoundBtn.addEventListener('click', () => {
+      if (state.phase === 'PREP') {
+        state.remainingMs = state.phaseDurationMs;
+      } else if (state.currentRound > 1) {
+        state.currentRound -= 1;
+        state.remainingMs = state.intervalSec * 1000;
+        state.phaseDurationMs = state.intervalSec * 1000;
+      } else {
+        state.remainingMs = state.intervalSec * 1000;
+      }
+      state.lastCueSecond = -1;
+      updateTimerDisplay();
+    });
+
+    // Next Round
+    els.nextRoundBtn.addEventListener('click', () => {
+      if (state.phase === 'PREP') {
+        state.phase = 'WORK';
+        state.currentRound = 1;
+        state.phaseDurationMs = state.intervalSec * 1000;
+        state.remainingMs = state.phaseDurationMs;
+        cueGoBeep();
+      } else if (state.currentRound < state.totalRounds) {
+        state.currentRound += 1;
+        state.phaseDurationMs = state.intervalSec * 1000;
+        state.remainingMs = state.phaseDurationMs;
+        cueGoBeep();
+      } else {
+        finishWorkout();
+        return;
+      }
+      state.lastCueSecond = -1;
+      updateTimerDisplay();
+    });
+
+    // Reset Modal
+    els.resetTriggerBtn.addEventListener('click', () => {
+      els.resetModal.classList.remove('hidden');
+    });
+
+    els.cancelResetBtn.addEventListener('click', () => {
+      els.resetModal.classList.add('hidden');
+    });
+
+    els.confirmResetBtn.addEventListener('click', () => {
+      els.resetModal.classList.add('hidden');
+      cancelAnimationFrame(state.rafId);
+      releaseWakeLock();
+      state.phase = 'SETUP';
+      state.isPaused = false;
+      showScreen('SETUP');
+      renderSetupUI();
+    });
+
+    // Restart from Complete Screen
+    els.restartBtn.addEventListener('click', () => {
+      state.phase = 'SETUP';
+      showScreen('SETUP');
+      renderSetupUI();
+    });
+
+    // Initial Render
+    renderSetupUI();
+  </script>
+</body>
+</html>
