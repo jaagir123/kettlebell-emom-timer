@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Kettlebell EMOM Timer</title>
+  <title>Kettlebell EMOM Timer + Tabata Music</title>
+  <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Inter Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -35,11 +37,46 @@
     .tabular-nums {
       font-variant-numeric: tabular-nums;
     }
-    /* Smooth SVG ring transition */
+    /* Smooth SVG ring stroke color transition */
     #progress-ring {
       transition: stroke 0.25s ease;
     }
-    /* Custom subtle scrollbar for movement list */
+    /* Custom volume range slider styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 9999px;
+      background: #1E293B;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 9999px;
+      background: #10B981;
+      border: 2px solid #0B0F17;
+      margin-top: -7px;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+    }
+    input[type="range"]::-moz-range-track {
+      height: 6px;
+      border-radius: 9999px;
+      background: #1E293B;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 9999px;
+      background: #10B981;
+      border: 2px solid #0B0F17;
+    }
+    /* Subtle scrollbar */
     ::-webkit-scrollbar {
       width: 4px;
       height: 4px;
@@ -59,7 +96,7 @@
   <main class="w-full max-w-md min-h-[100dvh] flex flex-col justify-between px-4 py-4 sm:py-6 relative">
 
     <!-- ==================== 1. PRE-WORKOUT SETUP SCREEN ==================== -->
-    <section id="setup-screen" class="flex flex-col flex-1 justify-between gap-4">
+    <section id="setup-screen" class="flex flex-col flex-1 justify-between gap-3.5">
       <!-- Header -->
       <header class="flex items-center justify-between pt-1">
         <div class="flex items-center gap-2.5">
@@ -72,7 +109,7 @@
           </div>
           <div>
             <h1 class="text-lg font-extrabold tracking-tight text-white leading-tight">EMOM Timer</h1>
-            <p class="text-xs text-slate-400 font-medium">Kettlebell Interval Trainer</p>
+            <p class="text-xs text-slate-400 font-medium">Kettlebell + Tabata Beats</p>
           </div>
         </div>
         <div id="setup-total-badge" class="px-3 py-1.5 rounded-full bg-card border border-slate-800 text-xs font-bold text-emerald-400 tabular-nums">
@@ -80,17 +117,17 @@
         </div>
       </header>
 
-      <!-- Setup Controls -->
-      <div class="flex flex-col gap-3.5 flex-1 justify-center">
+      <!-- Scrollable Setup Controls -->
+      <div class="flex flex-col gap-3 flex-1 justify-center">
 
         <!-- Total Rounds Card -->
         <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-2.5">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Rounds</span>
             <span class="text-xs text-slate-500 font-medium">1–99 rounds</span>
           </div>
           <!-- Stepper -->
-          <div class="flex items-center justify-between gap-4 mb-3.5">
+          <div class="flex items-center justify-between gap-4 mb-3">
             <button type="button" id="rounds-dec" aria-label="Decrease rounds"
               class="w-14 h-12 rounded-xl bg-slate-800/90 hover:bg-slate-700 active:scale-95 transition flex items-center justify-center text-2xl font-bold text-slate-200 border border-slate-700/60">
               −
@@ -114,11 +151,11 @@
           </div>
         </div>
 
-        <!-- Interval Length & Get Ready Grid -->
-        <div class="grid grid-cols-1 gap-3.5">
+        <!-- Interval Length & Get Ready Cards -->
+        <div class="grid grid-cols-1 gap-3">
           <!-- Interval Length -->
-          <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
-            <div class="flex items-center justify-between mb-2.5">
+          <div class="bg-card border border-slate-800/80 rounded-2xl p-3.5 shadow-lg">
+            <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interval Length</span>
               <span id="interval-label" class="text-xs font-semibold text-emerald-400">EMOM (60s)</span>
             </div>
@@ -131,8 +168,8 @@
           </div>
 
           <!-- Get Ready Countdown -->
-          <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
-            <div class="flex items-center justify-between mb-2.5">
+          <div class="bg-card border border-slate-800/80 rounded-2xl p-3.5 shadow-lg">
+            <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Get Ready Countdown</span>
               <span class="text-xs font-medium text-amber-400">Pre-start</span>
             </div>
@@ -145,13 +182,71 @@
           </div>
         </div>
 
-        <!-- Optional Kettlebell Movements -->
+        <!-- ==================== TABATA WORKOUT MUSIC CARD ==================== -->
         <div class="bg-card border border-slate-800/80 rounded-2xl p-4 shadow-lg">
+          <div class="flex items-center justify-between mb-2.5">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Tabata Round Music</span>
+            </div>
+            <span id="music-active-label" class="text-[11px] font-bold text-emerald-400">150 BPM</span>
+          </div>
+
+          <!-- Built-in Beat Style Selector -->
+          <div class="grid grid-cols-2 gap-2 mb-3" id="music-style-presets">
+            <button type="button" data-style="tabataDrive" class="preset-music py-2.5 px-2 rounded-xl text-left border transition active:scale-95">
+              <span class="block text-xs font-extrabold leading-tight">Tabata Drive</span>
+              <span class="block text-[10px] opacity-75 mt-0.5">150 BPM • Energetic</span>
+            </button>
+            <button type="button" data-style="kettlebellBass" class="preset-music py-2.5 px-2 rounded-xl text-left border transition active:scale-95">
+              <span class="block text-xs font-extrabold leading-tight">Kettlebell Bass</span>
+              <span class="block text-[10px] opacity-75 mt-0.5">132 BPM • Heavy Groove</span>
+            </button>
+            <button type="button" data-style="hiitElectro" class="preset-music py-2.5 px-2 rounded-xl text-left border transition active:scale-95">
+              <span class="block text-xs font-extrabold leading-tight">HIIT Electro</span>
+              <span class="block text-[10px] opacity-75 mt-0.5">164 BPM • High Octane</span>
+            </button>
+            <button type="button" data-style="off" class="preset-music py-2.5 px-2 rounded-xl text-left border transition active:scale-95">
+              <span class="block text-xs font-extrabold leading-tight">Music Off</span>
+              <span class="block text-[10px] opacity-75 mt-0.5">Beeps Only</span>
+            </button>
+          </div>
+
+          <!-- Optional Custom Audio File Picker -->
+          <div class="bg-surface/80 border border-slate-800 rounded-xl p-2.5 mb-3">
+            <div class="flex items-center justify-between gap-2">
+              <label for="custom-audio-input" class="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+                <span class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-slate-200 shrink-0 transition">
+                  Choose MP3/M4A
+                </span>
+                <span id="custom-audio-name" class="text-[11px] text-slate-400 truncate">
+                  Optional: use your own track
+                </span>
+              </label>
+              <button type="button" id="clear-custom-audio-btn" class="hidden px-2 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 text-[10px] font-extrabold uppercase shrink-0 transition">
+                Clear
+              </button>
+              <input id="custom-audio-input" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg" class="hidden" />
+            </div>
+          </div>
+
+          <!-- Music Volume Slider -->
+          <div class="flex items-center gap-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 shrink-0">Music Vol</span>
+            <input id="music-volume-slider" type="range" min="0" max="100" value="70" class="flex-1" aria-label="Music volume" />
+            <span id="music-volume-val" class="text-xs font-extrabold text-emerald-400 tabular-nums w-9 text-right">70%</span>
+          </div>
+        </div>
+
+        <!-- Optional Kettlebell Movements -->
+        <div class="bg-card border border-slate-800/80 rounded-2xl p-3.5 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Movements <span class="text-slate-500 font-normal normal-case">(Optional, rotates per round)</span></span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Movements <span class="text-slate-500 font-normal normal-case">(Rotates each round)</span></span>
           </div>
           <div class="flex gap-2">
-            <input id="movement-input" type="text" maxlength="40" placeholder="e.g. 15 KB Swings, 8 Cleans..."
+            <input id="movement-input" type="text" maxlength="40" placeholder="e.g. Swings, Cleans, Presses..."
               class="flex-1 bg-surface border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition" />
             <button type="button" id="add-movement-btn"
               class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-xs font-bold text-emerald-400 transition">
@@ -162,7 +257,7 @@
           <div id="movement-list" class="flex flex-wrap gap-1.5 mt-2.5 empty:mt-0"></div>
         </div>
 
-        <!-- Sound & Vibration Toggles -->
+        <!-- Beeps & Vibration Toggles -->
         <div class="grid grid-cols-2 gap-3">
           <button type="button" id="toggle-sound"
             class="flex items-center justify-between bg-card border border-slate-800/80 rounded-2xl px-4 py-3 active:scale-[0.98] transition">
@@ -172,7 +267,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
                 </svg>
               </span>
-              <span class="text-xs font-bold text-slate-200">Sound</span>
+              <span class="text-xs font-bold text-slate-200">Beeps</span>
             </div>
             <span id="sound-status" class="text-[11px] font-extrabold uppercase text-emerald-400">ON</span>
           </button>
@@ -193,7 +288,7 @@
       </div>
 
       <!-- Start Workout CTA -->
-      <div class="pt-1 pb-1">
+      <div class="pt-1 pb-2">
         <button type="button" id="start-workout-btn"
           class="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black text-lg tracking-wide shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -204,20 +299,27 @@
 
     <!-- ==================== 2. ACTIVE TIMER SCREEN ==================== -->
     <section id="timer-screen" class="hidden flex-col flex-1 justify-between py-2">
-      <!-- Top Bar: Round Badge & Wake Lock / Mute -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span id="round-badge" class="px-3.5 py-1.5 rounded-full bg-card border border-slate-700/80 text-sm font-extrabold text-white tabular-nums">
+      <!-- Top Bar: Round Badge & Audio Controls -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="round-badge" class="px-3.5 py-1.5 rounded-full bg-card border border-slate-700/80 text-sm font-extrabold text-white tabular-nums shrink-0">
             ROUND 1 / 20
           </span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span id="wakelock-badge" class="hidden px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-            Screen Awake
+          <span id="wakelock-badge" class="hidden px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[10px] font-bold uppercase tracking-wider text-emerald-400 truncate">
+            Awake
           </span>
-          <button type="button" id="timer-mute-btn" aria-label="Toggle sound"
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Mid-Workout Music Mute/Unmute Toggle -->
+          <button type="button" id="timer-music-btn" aria-label="Toggle workout music"
+            class="h-10 px-3 rounded-xl bg-card border border-slate-800 flex items-center gap-1.5 text-xs font-extrabold active:scale-95 transition">
+            <!-- Updated dynamically -->
+          </button>
+          <!-- Mid-Workout Beeps Mute/Unmute Toggle -->
+          <button type="button" id="timer-mute-btn" aria-label="Toggle countdown beeps"
             class="w-10 h-10 rounded-xl bg-card border border-slate-800 flex items-center justify-center text-slate-300 active:scale-95 transition">
-            <!-- Icon updated dynamically -->
+            <!-- Updated dynamically -->
           </button>
         </div>
       </div>
@@ -228,14 +330,14 @@
           <span id="phase-dot" class="w-2 h-2 rounded-full animate-pulse"></span>
           <span id="phase-text">GET READY</span>
         </div>
-        <div id="active-movement-box" class="mt-3 min-h-[44px] flex flex-col items-center justify-center">
+        <div id="active-movement-box" class="mt-2.5 min-h-[44px] flex flex-col items-center justify-center">
           <p id="current-movement-text" class="text-xl font-extrabold text-white tracking-tight leading-snug"></p>
           <p id="next-movement-text" class="text-xs font-semibold text-slate-400 mt-0.5"></p>
         </div>
       </div>
 
       <!-- Center SVG Circular Progress Ring & Giant Clock -->
-      <div class="relative flex items-center justify-center my-2">
+      <div class="relative flex items-center justify-center my-1">
         <svg class="w-72 h-72 sm:w-80 sm:h-80 -rotate-90 drop-shadow-2xl" viewBox="0 0 260 260">
           <!-- Background Track -->
           <circle cx="130" cy="130" r="114" fill="none" stroke="#1A2232" stroke-width="14" />
@@ -279,20 +381,20 @@
             <span class="text-[10px] font-bold uppercase mt-0.5">Prev</span>
           </button>
 
-          <!-- Pause / Resume (Spans 2 columns for huge thumb target) -->
+          <!-- Pause / Resume -->
           <button type="button" id="pause-resume-btn"
             class="col-span-2 h-16 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-base tracking-wide shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition">
             <span id="pause-resume-icon"></span>
             <span id="pause-resume-text">PAUSE</span>
           </button>
 
-          <!-- Next Round -->
-          <button type="button" id="next-round-btn" aria-label="Next round"
+          <!-- Next / Skip Round -->
+          <button type="button" id="next-round-btn" aria-label="Skip to next round"
             class="h-16 rounded-2xl bg-card hover:bg-cardHover active:scale-95 border border-slate-800 flex flex-col items-center justify-center text-slate-300 transition">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
             </svg>
-            <span class="text-[10px] font-bold uppercase mt-0.5">Next</span>
+            <span class="text-[10px] font-bold uppercase mt-0.5">Skip</span>
           </button>
         </div>
 
@@ -338,7 +440,7 @@
     <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="w-full max-w-xs bg-card border border-slate-700 rounded-2xl p-5 shadow-2xl text-center">
         <h3 class="text-lg font-extrabold text-white">End Workout?</h3>
-        <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Your current EMOM progress will be reset and you'll return to setup.</p>
+        <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Your current EMOM progress and music will stop and return to setup.</p>
         <div class="grid grid-cols-2 gap-2.5 mt-5">
           <button type="button" id="cancel-reset-btn"
             class="py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
@@ -352,18 +454,24 @@
       </div>
     </div>
 
+    <!-- Hidden HTML5 Audio Element for Optional Custom MP3/M4A Playback -->
+    <audio id="custom-audio-player" loop playsinline preload="auto"></audio>
+
   </main>
 
   <script>
     /**
-     * Kettlebell EMOM Timer Application
-     * Uses drift-compensated timestamps (performance.now), Web Audio API synthesis,
-     * Vibration API, and Screen Wake Lock API with graceful fallbacks.
+     * Kettlebell EMOM Timer + Built-In Tabata Music Synthesizer
+     * - Drift-compensated timer loop (performance.now)
+     * - Zero-dependency Web Audio API lookahead drum & synth sequencer (3 BPM presets)
+     * - Optional local MP3/M4A audio file playback synced to rounds
+     * - Automatic volume ducking during final 5-second countdown
+     * - Screen Wake Lock API & Vibration API with graceful fallbacks
      */
 
-    // ==================== STATE ====================
+    // ==================== APPLICATION STATE ====================
     const state = {
-      // Settings
+      // Workout Settings
       totalRounds: 20,
       intervalSec: 60,
       prepSec: 10,
@@ -371,7 +479,14 @@
       vibrateEnabled: true,
       movements: [],
 
-      // Runtime
+      // Music Settings
+      musicStyle: 'tabataDrive', // 'tabataDrive' | 'kettlebellBass' | 'hiitElectro' | 'off'
+      musicVolume: 0.70,         // 0.0 to 1.0
+      musicMuted: false,         // Active workout mid-session mute toggle
+      customAudioUrl: null,
+      customAudioName: '',
+
+      // Runtime State
       phase: 'SETUP', // 'SETUP' | 'PREP' | 'WORK' | 'COMPLETE'
       isPaused: false,
       currentRound: 1,
@@ -379,6 +494,8 @@
       phaseDurationMs: 0,
       lastTickTime: 0,
       lastCueSecond: -1,
+      lastPrepTickSecond: -1,
+      isDucking: false,
       rafId: null,
       wakeLock: null,
     };
@@ -400,6 +517,18 @@
       intervalLabel: document.getElementById('interval-label'),
       intervalPresetBtns: document.querySelectorAll('.preset-interval'),
       prepPresetBtns: document.querySelectorAll('.preset-prep'),
+
+      // Music Setup
+      musicActiveLabel: document.getElementById('music-active-label'),
+      musicStyleBtns: document.querySelectorAll('.preset-music'),
+      customAudioInput: document.getElementById('custom-audio-input'),
+      customAudioName: document.getElementById('custom-audio-name'),
+      clearCustomAudioBtn: document.getElementById('clear-custom-audio-btn'),
+      musicVolumeSlider: document.getElementById('music-volume-slider'),
+      musicVolumeVal: document.getElementById('music-volume-val'),
+      customAudioPlayer: document.getElementById('custom-audio-player'),
+
+      // Movements & Toggles
       movementInput: document.getElementById('movement-input'),
       addMovementBtn: document.getElementById('add-movement-btn'),
       movementList: document.getElementById('movement-list'),
@@ -414,6 +543,7 @@
       // Active Timer
       roundBadge: document.getElementById('round-badge'),
       wakelockBadge: document.getElementById('wakelock-badge'),
+      timerMusicBtn: document.getElementById('timer-music-btn'),
       timerMuteBtn: document.getElementById('timer-mute-btn'),
       phasePill: document.getElementById('phase-pill'),
       phaseDot: document.getElementById('phase-dot'),
@@ -443,27 +573,370 @@
       confirmResetBtn: document.getElementById('confirm-reset-btn'),
     };
 
-    // ==================== WEB AUDIO ENGINE ====================
+    // ==================== WEB AUDIO API ENGINE & TABATA SYNTH ====================
     let audioCtx = null;
+    let sfxGain = null;
+    let musicGain = null;
+    let noiseBuffer = null;
 
+    /**
+     * Beat Presets: 16-step (1-bar) patterns with BPM, kick, snare, hi-hat,
+     * bassline (MIDI note numbers), and arpeggio lead notes.
+     */
+    const BEAT_PRESETS = {
+      tabataDrive: {
+        name: 'Tabata Drive',
+        bpm: 150,
+        kick:  [1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 1, 0],
+        snare: [0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 1],
+        hat:   [1, 0, 1, 1,  1, 0, 1, 1,  1, 0, 1, 1,  1, 1, 1, 1],
+        // A minor driving off-beat bass
+        bass:  [45, 0, 45, 0,  45, 0, 48, 0,  43, 0, 43, 0,  40, 0, 43, 45],
+        // Energetic synth arpeggio
+        arp:   [69, 0, 72, 0,  76, 0, 72, 76, 79, 0, 76, 0,  72, 0, 76, 0],
+        bassType: 'sawtooth',
+        arpType: 'square',
+      },
+      kettlebellBass: {
+        name: 'Kettlebell Bass',
+        bpm: 132,
+        kick:  [1, 0, 0, 1,  0, 0, 1, 0,  1, 0, 0, 0,  0, 1, 0, 0],
+        snare: [0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0],
+        hat:   [1, 1, 1, 0,  1, 1, 1, 1,  1, 1, 1, 0,  1, 0, 1, 1],
+        // Heavy E minor groove bass
+        bass:  [40, 40, 0, 40, 0, 43, 40, 0,  38, 0, 40, 0,  43, 0, 45, 43],
+        arp:   [64, 0, 0, 67,  0, 0, 71, 0,  64, 0, 67, 0,  71, 0, 74, 0],
+        bassType: 'sawtooth',
+        arpType: 'triangle',
+      },
+      hiitElectro: {
+        name: 'HIIT Electro',
+        bpm: 164,
+        kick:  [1, 0, 0, 0,  1, 0, 1, 0,  1, 0, 0, 1,  1, 0, 1, 0],
+        snare: [0, 0, 0, 0,  1, 0, 0, 1,  0, 0, 0, 0,  1, 0, 0, 1],
+        hat:   [1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1],
+        // High-octane D minor electro bass
+        bass:  [38, 0, 38, 50, 38, 0, 41, 0,  43, 0, 43, 55, 45, 0, 43, 41],
+        arp:   [62, 65, 69, 74, 69, 65, 62, 69, 65, 69, 72, 77, 74, 72, 69, 65],
+        bassType: 'square',
+        arpType: 'sawtooth',
+      },
+    };
+
+    // Sequencer Runtime State
+    const seq = {
+      isRunning: false,
+      timerId: null,
+      currentStep: 0,
+      nextNoteTime: 0,
+      lookaheadMs: 25,
+      scheduleAheadSec: 0.12,
+    };
+
+    /**
+     * Initialize & unlock AudioContext cleanly on user gesture (iOS Safari + Android Chrome)
+     */
     function initAudio() {
       try {
         if (!audioCtx) {
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            audioCtx = new AudioContextClass();
+          if (!AudioContextClass) return;
+          audioCtx = new AudioContextClass();
+
+          // Separate gain buses so countdown beeps stay crisp over music
+          sfxGain = audioCtx.createGain();
+          sfxGain.gain.value = 1.0;
+          sfxGain.connect(audioCtx.destination);
+
+          musicGain = audioCtx.createGain();
+          musicGain.gain.value = getEffectiveMusicGain();
+          musicGain.connect(audioCtx.destination);
+
+          // Pre-generate 1-second white noise buffer for snare & hi-hat synthesis
+          const sampleRate = audioCtx.sampleRate;
+          noiseBuffer = audioCtx.createBuffer(1, sampleRate, sampleRate);
+          const data = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < sampleRate; i++) {
+            data[i] = Math.random() * 2 - 1;
           }
         }
-        if (audioCtx && audioCtx.state === 'suspended') {
+        if (audioCtx.state === 'suspended') {
           audioCtx.resume();
         }
       } catch (err) {
-        // Gracefully ignore audio errors on restricted devices
+        // Gracefully ignore restricted audio environments
       }
     }
 
-    function playTone(freq, duration, type = 'sine', volume = 0.25, delay = 0) {
-      if (!state.soundEnabled || !audioCtx) return;
+    function midiToFreq(midi) {
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+
+    /**
+     * Calculate active music gain considering user volume, mute state, and 5-sec countdown ducking
+     */
+    function getEffectiveMusicGain() {
+      if (state.musicMuted || state.musicStyle === 'off' && !state.customAudioUrl) return 0;
+      const baseVol = state.musicVolume * 0.55; // Headroom so synth never clips
+      return state.isDucking ? baseVol * 0.30 : baseVol;
+    }
+
+    function updateMusicGainImmediate(smooth = true) {
+      const targetSynthGain = getEffectiveMusicGain();
+      if (audioCtx && musicGain) {
+        const now = audioCtx.currentTime;
+        musicGain.gain.cancelScheduledValues(now);
+        if (smooth) {
+          musicGain.gain.setTargetAtTime(targetSynthGain, now, 0.08);
+        } else {
+          musicGain.gain.setValueAtTime(targetSynthGain, now);
+        }
+      }
+      // Also sync HTML5 custom audio player volume
+      if (els.customAudioPlayer) {
+        const customVol = state.musicMuted ? 0 : (state.isDucking ? state.musicVolume * 0.30 : state.musicVolume);
+        els.customAudioPlayer.volume = Math.max(0, Math.min(1, customVol));
+      }
+    }
+
+    // ---- Synthesized Drum & Synth Voices ----
+
+    function triggerKick(time) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(150, time);
+      osc.frequency.exponentialRampToValueAtTime(42, time + 0.09);
+
+      gain.gain.setValueAtTime(0.95, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.24);
+
+      osc.connect(gain);
+      gain.connect(musicGain);
+      osc.start(time);
+      osc.stop(time + 0.26);
+    }
+
+    function triggerSnare(time) {
+      // Filtered noise burst
+      if (noiseBuffer) {
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1800, time);
+        filter.Q.value = 0.9;
+
+        const nGain = audioCtx.createGain();
+        nGain.gain.setValueAtTime(0.55, time);
+        nGain.gain.exponentialRampToValueAtTime(0.001, time + 0.14);
+
+        noise.connect(filter);
+        filter.connect(nGain);
+        nGain.connect(musicGain);
+        noise.start(time);
+        noise.stop(time + 0.16);
+      }
+      // Snare body snap
+      const osc = audioCtx.createOscillator();
+      const oGain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(210, time);
+      osc.frequency.exponentialRampToValueAtTime(110, time + 0.06);
+      oGain.gain.setValueAtTime(0.4, time);
+      oGain.gain.exponentialRampToValueAtTime(0.001, time + 0.09);
+
+      osc.connect(oGain);
+      oGain.connect(musicGain);
+      osc.start(time);
+      osc.stop(time + 0.10);
+    }
+
+    function triggerHiHat(time, accent = false) {
+      if (!noiseBuffer) return;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(accent ? 8500 : 7000, time);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(accent ? 0.28 : 0.16, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + (accent ? 0.07 : 0.045));
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(musicGain);
+      noise.start(time);
+      noise.stop(time + 0.08);
+    }
+
+    function triggerBass(time, midi, duration, waveType) {
+      const osc = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      const gain = audioCtx.createGain();
+
+      osc.type = waveType || 'sawtooth';
+      osc.frequency.setValueAtTime(midiToFreq(midi), time);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(620, time);
+      filter.frequency.exponentialRampToValueAtTime(180, time + duration);
+
+      gain.gain.setValueAtTime(0.42, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(musicGain);
+      osc.start(time);
+      osc.stop(time + duration + 0.02);
+    }
+
+    function triggerArp(time, midi, duration, waveType) {
+      const osc = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      const gain = audioCtx.createGain();
+
+      osc.type = waveType || 'square';
+      osc.frequency.setValueAtTime(midiToFreq(midi), time);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(2200, time);
+      filter.frequency.exponentialRampToValueAtTime(750, time + duration);
+
+      gain.gain.setValueAtTime(0.16, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(musicGain);
+      osc.start(time);
+      osc.stop(time + duration + 0.02);
+    }
+
+    /**
+     * Lookahead step scheduler for rock-solid BPM timing
+     */
+    function scheduleStep(stepIndex, time) {
+      const preset = BEAT_PRESETS[state.musicStyle];
+      if (!preset || !audioCtx) return;
+
+      const stepDur = 60 / preset.bpm / 4; // 16th note duration
+      const step = stepIndex % 16;
+
+      // During final 5 seconds, accentuate tension with crisp hi-hats & punchy kicks while ducked
+      if (state.isDucking) {
+        if (preset.kick[step]) triggerKick(time);
+        if (step % 2 === 0) triggerHiHat(time, step % 4 === 0);
+        return;
+      }
+
+      if (preset.kick[step]) triggerKick(time);
+      if (preset.snare[step]) triggerSnare(time);
+      if (preset.hat[step]) triggerHiHat(time, step % 4 === 2);
+      if (preset.bass[step]) triggerBass(time, preset.bass[step], stepDur * 1.4, preset.bassType);
+      if (preset.arp[step]) triggerArp(time, preset.arp[step], stepDur * 0.9, preset.arpType);
+    }
+
+    function schedulerTick() {
+      if (!seq.isRunning || !audioCtx) return;
+      const preset = BEAT_PRESETS[state.musicStyle];
+      if (!preset) return;
+
+      const stepDur = 60 / preset.bpm / 4;
+      while (seq.nextNoteTime < audioCtx.currentTime + seq.scheduleAheadSec) {
+        scheduleStep(seq.currentStep, seq.nextNoteTime);
+        seq.nextNoteTime += stepDur;
+        seq.currentStep = (seq.currentStep + 1) % 16;
+      }
+    }
+
+    /**
+     * Start music fresh for a new round (either custom audio file or Web Audio synth)
+     */
+    function startRoundMusic(restartFromZero = true) {
+      stopRoundMusic();
+      state.isDucking = false;
+
+      if (state.customAudioUrl) {
+        // Play user's custom MP3/M4A track
+        try {
+          if (restartFromZero) {
+            els.customAudioPlayer.currentTime = 0;
+          }
+          updateMusicGainImmediate(false);
+          const playPromise = els.customAudioPlayer.play();
+          if (playPromise && playPromise.catch) {
+            playPromise.catch(() => {});
+          }
+        } catch (err) {
+          // Ignore playback restrictions
+        }
+        return;
+      }
+
+      // Built-in Web Audio API Tabata Synth
+      if (state.musicStyle === 'off' || !BEAT_PRESETS[state.musicStyle]) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      updateMusicGainImmediate(false);
+      seq.isRunning = true;
+      if (restartFromZero) {
+        seq.currentStep = 0;
+      }
+      seq.nextNoteTime = audioCtx.currentTime + 0.03;
+      seq.timerId = setInterval(schedulerTick, seq.lookaheadMs);
+    }
+
+    function pauseRoundMusic() {
+      if (seq.timerId) {
+        clearInterval(seq.timerId);
+        seq.timerId = null;
+      }
+      seq.isRunning = false;
+      if (state.customAudioUrl && els.customAudioPlayer && !els.customAudioPlayer.paused) {
+        els.customAudioPlayer.pause();
+      }
+    }
+
+    function stopRoundMusic() {
+      pauseRoundMusic();
+      seq.currentStep = 0;
+      state.isDucking = false;
+      if (els.customAudioPlayer) {
+        els.customAudioPlayer.pause();
+        try {
+          els.customAudioPlayer.currentTime = 0;
+        } catch (err) {}
+      }
+    }
+
+    /**
+     * Prime custom <audio> element during Start button tap so iOS Safari allows
+     * automatic playback after the Get Ready countdown completes.
+     */
+    function primeCustomAudioForMobile() {
+      if (!state.customAudioUrl || !els.customAudioPlayer) return;
+      try {
+        els.customAudioPlayer.volume = 0;
+        const p = els.customAudioPlayer.play();
+        if (p && p.then) {
+          p.then(() => {
+            els.customAudioPlayer.pause();
+            els.customAudioPlayer.currentTime = 0;
+            updateMusicGainImmediate(false);
+          }).catch(() => {});
+        }
+      } catch (err) {}
+    }
+
+    // ---- Sound Effects (Beeps & Cues) ----
+
+    function playSfxTone(freq, duration, type = 'sine', volume = 0.32, delay = 0) {
+      if (!state.soundEnabled || !audioCtx || !sfxGain) return;
       try {
         const now = audioCtx.currentTime + delay;
         const osc = audioCtx.createOscillator();
@@ -472,45 +945,46 @@
         osc.frequency.setValueAtTime(freq, now);
 
         gain.gain.setValueAtTime(0.001, now);
-        gain.gain.exponentialRampToValueAtTime(volume, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(volume, now + 0.012);
         gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(sfxGain);
         osc.start(now);
         osc.stop(now + duration + 0.02);
-      } catch (err) {
-        // Ignore playback errors
-      }
+      } catch (err) {}
+    }
+
+    function cuePrepTick() {
+      // Subtle rhythmic build-up tick during Get Ready (only if music is enabled & not muted)
+      if (state.musicMuted || (state.musicStyle === 'off' && !state.customAudioUrl)) return;
+      if (!audioCtx || !musicGain) return;
+      triggerHiHat(audioCtx.currentTime + 0.01, false);
     }
 
     function cueCountdownBeep() {
-      playTone(587.33, 0.14, 'triangle', 0.25); // D5 crisp beep
-      vibrateDevice([40]);
+      playSfxTone(659.25, 0.15, 'triangle', 0.42); // E5 loud crisp beep
+      vibrateDevice([45]);
     }
 
     function cueGoBeep() {
-      playTone(1046.5, 0.32, 'sine', 0.35); // C6 bright GO tone
+      playSfxTone(1046.5, 0.32, 'sine', 0.50); // C6 bright GO tone
       vibrateDevice([120]);
     }
 
     function cueFinishChime() {
-      playTone(523.25, 0.18, 'sine', 0.28, 0);    // C5
-      playTone(659.25, 0.18, 'sine', 0.28, 0.15); // E5
-      playTone(783.99, 0.20, 'sine', 0.28, 0.30); // G5
-      playTone(1046.5, 0.45, 'sine', 0.35, 0.45); // C6
+      playSfxTone(523.25, 0.18, 'sine', 0.35, 0);    // C5
+      playSfxTone(659.25, 0.18, 'sine', 0.35, 0.15); // E5
+      playSfxTone(783.99, 0.20, 'sine', 0.35, 0.30); // G5
+      playSfxTone(1046.5, 0.45, 'sine', 0.45, 0.45); // C6
       vibrateDevice([150, 80, 150, 80, 300]);
     }
 
     function vibrateDevice(pattern) {
       if (!state.vibrateEnabled) return;
       try {
-        if (navigator.vibrate) {
-          navigator.vibrate(pattern);
-        }
-      } catch (err) {
-        // Ignore on unsupported browsers (e.g., iOS Safari)
-      }
+        if (navigator.vibrate) navigator.vibrate(pattern);
+      } catch (err) {}
     }
 
     // ==================== SCREEN WAKE LOCK ====================
@@ -534,13 +1008,10 @@
           await state.wakeLock.release();
           state.wakeLock = null;
         }
-      } catch (err) {
-        // Ignore
-      }
+      } catch (err) {}
       els.wakelockBadge.classList.add('hidden');
     }
 
-    // Re-acquire wake lock if user returns to tab during active workout
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && (state.phase === 'PREP' || state.phase === 'WORK') && !state.isPaused) {
         requestWakeLock();
@@ -562,17 +1033,22 @@
       return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
-    // ==================== SETUP UI SYNC ====================
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ==================== UI RENDERING ====================
     function renderSetupUI() {
       els.roundsDisplay.textContent = state.totalRounds;
       const totalWorkoutSec = state.totalRounds * state.intervalSec;
       els.setupTotalBadge.textContent = `Total: ${formatMMSSFloor(totalWorkoutSec)}`;
 
-      // Interval label
       const labels = { 45: '45s Intervals', 60: 'EMOM (60s)', 90: '90s Intervals', 120: 'E2MOM (120s)' };
       els.intervalLabel.textContent = labels[state.intervalSec] || `${state.intervalSec}s`;
 
-      // Highlight round presets
+      // Round presets
       els.roundPresetBtns.forEach(btn => {
         const active = Number(btn.dataset.rounds) === state.totalRounds;
         btn.className = `preset-round py-2 rounded-xl text-xs font-bold border transition active:scale-95 ${
@@ -582,7 +1058,7 @@
         }`;
       });
 
-      // Highlight interval presets
+      // Interval presets
       els.intervalPresetBtns.forEach(btn => {
         const active = Number(btn.dataset.interval) === state.intervalSec;
         btn.className = `preset-interval py-2.5 rounded-xl text-xs font-bold border transition active:scale-95 ${
@@ -592,7 +1068,7 @@
         }`;
       });
 
-      // Highlight prep presets
+      // Prep presets
       els.prepPresetBtns.forEach(btn => {
         const active = Number(btn.dataset.prep) === state.prepSec;
         btn.className = `preset-prep py-2.5 rounded-xl text-xs font-bold border transition active:scale-95 ${
@@ -602,7 +1078,47 @@
         }`;
       });
 
-      // Sound & Vibrate states
+      // Music style presets & badge
+      if (state.customAudioUrl) {
+        els.musicActiveLabel.textContent = 'Custom Audio';
+        els.musicActiveLabel.className = 'text-[11px] font-bold text-amber-400';
+      } else if (state.musicStyle === 'off') {
+        els.musicActiveLabel.textContent = 'Off';
+        els.musicActiveLabel.className = 'text-[11px] font-bold text-slate-500';
+      } else {
+        const p = BEAT_PRESETS[state.musicStyle];
+        els.musicActiveLabel.textContent = `${p.bpm} BPM`;
+        els.musicActiveLabel.className = 'text-[11px] font-bold text-emerald-400';
+      }
+
+      els.musicStyleBtns.forEach(btn => {
+        const isSelected = !state.customAudioUrl && btn.dataset.style === state.musicStyle;
+        btn.className = `preset-music py-2.5 px-2.5 rounded-xl text-left border transition active:scale-95 ${
+          isSelected
+            ? (btn.dataset.style === 'off'
+                ? 'bg-slate-800 border-slate-500 text-white'
+                : 'bg-emerald-500/15 border-emerald-500 text-emerald-300')
+            : 'bg-surface border-slate-800 text-slate-400 hover:border-slate-700'
+        }`;
+      });
+
+      // Custom audio UI
+      if (state.customAudioUrl) {
+        els.customAudioName.textContent = state.customAudioName;
+        els.customAudioName.className = 'text-[11px] font-semibold text-amber-300 truncate';
+        els.clearCustomAudioBtn.classList.remove('hidden');
+      } else {
+        els.customAudioName.textContent = 'Optional: use your own track';
+        els.customAudioName.className = 'text-[11px] text-slate-400 truncate';
+        els.clearCustomAudioBtn.classList.add('hidden');
+      }
+
+      // Volume slider
+      const volPct = Math.round(state.musicVolume * 100);
+      els.musicVolumeSlider.value = volPct;
+      els.musicVolumeVal.textContent = `${volPct}%`;
+
+      // Sound & Vibrate toggles
       els.soundStatus.textContent = state.soundEnabled ? 'ON' : 'OFF';
       els.soundStatus.className = `text-[11px] font-extrabold uppercase ${state.soundEnabled ? 'text-emerald-400' : 'text-slate-500'}`;
       els.soundIcon.className = state.soundEnabled ? 'text-emerald-400' : 'text-slate-500';
@@ -612,7 +1128,7 @@
       els.vibrateIcon.className = state.vibrateEnabled ? 'text-emerald-400' : 'text-slate-500';
 
       renderMovements();
-      renderTimerMuteIcon();
+      renderTimerAudioButtons();
     }
 
     function renderMovements() {
@@ -623,7 +1139,7 @@
         chip.innerHTML = `
           <span class="text-emerald-400 font-bold">${idx + 1}.</span>
           <span>${escapeHtml(move)}</span>
-          <button type="button" data-idx="${idx}" aria-label="Remove movement" class="ml-0.5 text-slate-400 hover:text-rose-400 font-bold text-sm leading-none">&times;</button>
+          <button type="button" aria-label="Remove movement" class="ml-0.5 text-slate-400 hover:text-rose-400 font-bold text-sm leading-none">&times;</button>
         `;
         chip.querySelector('button').addEventListener('click', () => {
           state.movements.splice(idx, 1);
@@ -633,13 +1149,8 @@
       });
     }
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function renderTimerMuteIcon() {
+    function renderTimerAudioButtons() {
+      // Beeps button
       if (state.soundEnabled) {
         els.timerMuteBtn.innerHTML = `
           <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -652,9 +1163,31 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
           </svg>`;
       }
+
+      // Music toggle button on Active Timer screen
+      const hasMusicSource = state.customAudioUrl || state.musicStyle !== 'off';
+      if (!hasMusicSource) {
+        els.timerMusicBtn.classList.add('hidden');
+      } else {
+        els.timerMusicBtn.classList.remove('hidden');
+        if (!state.musicMuted) {
+          els.timerMusicBtn.className = 'h-10 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center gap-1.5 text-xs font-extrabold active:scale-95 transition';
+          els.timerMusicBtn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+            </svg>
+            <span>MUSIC</span>`;
+        } else {
+          els.timerMusicBtn.className = 'h-10 px-3 rounded-xl bg-card border border-slate-800 text-slate-500 flex items-center gap-1.5 text-xs font-extrabold active:scale-95 transition';
+          els.timerMusicBtn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM3 3l18 18" />
+            </svg>
+            <span>MUTED</span>`;
+        }
+      }
     }
 
-    // ==================== SCREEN SWITCHING ====================
     function showScreen(screenName) {
       els.setupScreen.classList.add('hidden');
       els.setupScreen.classList.remove('flex');
@@ -681,10 +1214,15 @@
       requestWakeLock();
 
       state.isPaused = false;
+      state.musicMuted = false;
       state.currentRound = 1;
       state.lastCueSecond = -1;
+      state.lastPrepTickSecond = -1;
+      state.isDucking = false;
 
       if (state.prepSec > 0) {
+        // Prime custom audio on iOS Safari while inside the Start tap gesture
+        primeCustomAudioForMobile();
         state.phase = 'PREP';
         state.phaseDurationMs = state.prepSec * 1000;
         state.remainingMs = state.phaseDurationMs;
@@ -693,9 +1231,11 @@
         state.phaseDurationMs = state.intervalSec * 1000;
         state.remainingMs = state.phaseDurationMs;
         cueGoBeep();
+        startRoundMusic(true);
       }
 
       showScreen('TIMER');
+      renderTimerAudioButtons();
       updatePauseButtonUI();
       updateTimerDisplay();
 
@@ -713,13 +1253,28 @@
 
         const secLeft = Math.ceil(state.remainingMs / 1000);
 
-        // 3-2-1 countdown audio cues
+        // Subtle build-up ticks during Get Ready (above 3 seconds)
+        if (state.phase === 'PREP' && secLeft > 3 && secLeft !== state.lastPrepTickSecond) {
+          state.lastPrepTickSecond = secLeft;
+          cuePrepTick();
+        }
+
+        // Duck music smoothly during the final 5 seconds of a Work round
+        if (state.phase === 'WORK') {
+          const shouldDuck = secLeft <= 5 && secLeft > 0;
+          if (shouldDuck !== state.isDucking) {
+            state.isDucking = shouldDuck;
+            updateMusicGainImmediate(true);
+          }
+        }
+
+        // Loud & crisp 3-2-1 countdown beeps
         if (secLeft >= 1 && secLeft <= 3 && secLeft !== state.lastCueSecond) {
           state.lastCueSecond = secLeft;
           cueCountdownBeep();
         }
 
-        // Phase transition when timer hits 0
+        // Phase / Round transition at 0
         if (state.remainingMs <= 0) {
           handleIntervalComplete();
         }
@@ -735,6 +1290,7 @@
 
     function handleIntervalComplete() {
       state.lastCueSecond = -1;
+      state.lastPrepTickSecond = -1;
 
       if (state.phase === 'PREP') {
         state.phase = 'WORK';
@@ -742,12 +1298,14 @@
         state.phaseDurationMs = state.intervalSec * 1000;
         state.remainingMs = state.phaseDurationMs;
         cueGoBeep();
+        startRoundMusic(true);
       } else if (state.phase === 'WORK') {
         if (state.currentRound < state.totalRounds) {
           state.currentRound += 1;
           state.phaseDurationMs = state.intervalSec * 1000;
           state.remainingMs = state.phaseDurationMs;
           cueGoBeep();
+          startRoundMusic(true); // Fresh beat on every new round
         } else {
           finishWorkout();
         }
@@ -757,6 +1315,7 @@
     function finishWorkout() {
       state.phase = 'COMPLETE';
       cancelAnimationFrame(state.rafId);
+      stopRoundMusic();
       releaseWakeLock();
       cueFinishChime();
 
@@ -767,7 +1326,7 @@
 
     function updateTimerDisplay() {
       const secLeft = Math.max(0, Math.ceil(state.remainingMs / 1000));
-      const isWarning = secLeft <= 5 && secLeft > 0;
+      const isWarning = state.phase === 'WORK' && secLeft <= 5 && secLeft > 0;
 
       // Round badge
       els.roundBadge.textContent = `ROUND ${state.currentRound} / ${state.totalRounds}`;
@@ -787,21 +1346,21 @@
         els.phasePill.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border bg-slate-800/80 border-slate-600 text-slate-300';
         els.phaseDot.className = 'w-2 h-2 rounded-full bg-slate-400';
         els.progressRing.style.stroke = '#64748B';
-        els.clockDisplay.classList.remove('text-rose-400', 'text-amber-400');
+        els.clockDisplay.classList.remove('text-rose-400', 'text-amber-400', 'text-white');
         els.clockDisplay.classList.add('text-slate-300');
       } else if (state.phase === 'PREP') {
         els.phaseText.textContent = 'GET READY';
         els.phasePill.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border bg-amber-500/15 border-amber-500/40 text-amber-400';
         els.phaseDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
         els.progressRing.style.stroke = '#F59E0B';
-        els.clockDisplay.classList.remove('text-rose-400', 'text-slate-300');
+        els.clockDisplay.classList.remove('text-rose-400', 'text-slate-300', 'text-white');
         els.clockDisplay.classList.add('text-amber-400');
       } else if (isWarning) {
         els.phaseText.textContent = `WORK • ROUND ${state.currentRound}`;
         els.phasePill.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border bg-rose-500/15 border-rose-500/40 text-rose-400';
         els.phaseDot.className = 'w-2 h-2 rounded-full bg-rose-500 animate-ping';
         els.progressRing.style.stroke = '#F43F5E';
-        els.clockDisplay.classList.remove('text-amber-400', 'text-slate-300');
+        els.clockDisplay.classList.remove('text-amber-400', 'text-slate-300', 'text-white');
         els.clockDisplay.classList.add('text-rose-400');
       } else {
         els.phaseText.textContent = `WORK • ROUND ${state.currentRound}`;
@@ -812,7 +1371,7 @@
         els.clockDisplay.classList.add('text-white');
       }
 
-      // Movement display
+      // Rotating Movement Display
       if (state.movements.length > 0) {
         const currentIdx = (state.currentRound - 1) % state.movements.length;
         const nextIdx = state.currentRound % state.movements.length;
@@ -899,6 +1458,54 @@
       });
     });
 
+    // Music style presets
+    els.musicStyleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.musicStyle = btn.dataset.style;
+        // Clear custom audio if user explicitly taps a built-in beat style
+        if (state.customAudioUrl) {
+          clearCustomAudio();
+        }
+        renderSetupUI();
+      });
+    });
+
+    // Custom audio file picker
+    els.customAudioInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (state.customAudioUrl) {
+        URL.revokeObjectURL(state.customAudioUrl);
+      }
+      state.customAudioUrl = URL.createObjectURL(file);
+      state.customAudioName = file.name;
+      els.customAudioPlayer.src = state.customAudioUrl;
+      renderSetupUI();
+    });
+
+    function clearCustomAudio() {
+      if (state.customAudioUrl) {
+        URL.revokeObjectURL(state.customAudioUrl);
+      }
+      state.customAudioUrl = null;
+      state.customAudioName = '';
+      els.customAudioInput.value = '';
+      els.customAudioPlayer.removeAttribute('src');
+      els.customAudioPlayer.load();
+    }
+
+    els.clearCustomAudioBtn.addEventListener('click', () => {
+      clearCustomAudio();
+      renderSetupUI();
+    });
+
+    // Music Volume Slider
+    els.musicVolumeSlider.addEventListener('input', (e) => {
+      state.musicVolume = Number(e.target.value) / 100;
+      els.musicVolumeVal.textContent = `${Math.round(state.musicVolume * 100)}%`;
+      updateMusicGainImmediate(false);
+    });
+
     // Add movement
     function addMovement() {
       const val = els.movementInput.value.trim();
@@ -916,7 +1523,7 @@
       }
     });
 
-    // Sound & Vibrate toggles
+    // Sound & Vibrate toggles in Setup
     els.toggleSound.addEventListener('click', () => {
       state.soundEnabled = !state.soundEnabled;
       renderSetupUI();
@@ -928,9 +1535,17 @@
       renderSetupUI();
     });
 
+    // Mid-workout Beeps Mute/Unmute
     els.timerMuteBtn.addEventListener('click', () => {
       state.soundEnabled = !state.soundEnabled;
-      renderTimerMuteIcon();
+      renderTimerAudioButtons();
+    });
+
+    // Mid-workout Music Mute/Unmute (does not pause timer)
+    els.timerMusicBtn.addEventListener('click', () => {
+      state.musicMuted = !state.musicMuted;
+      updateMusicGainImmediate(true);
+      renderTimerAudioButtons();
     });
 
     // Start workout
@@ -941,10 +1556,14 @@
       state.isPaused = !state.isPaused;
       state.lastTickTime = performance.now();
       if (state.isPaused) {
+        pauseRoundMusic();
         releaseWakeLock();
       } else {
         initAudio();
         requestWakeLock();
+        if (state.phase === 'WORK') {
+          startRoundMusic(false); // Resume from current beat/position
+        }
       }
       updatePauseButtonUI();
       updateTimerDisplay();
@@ -958,14 +1577,18 @@
         state.currentRound -= 1;
         state.remainingMs = state.intervalSec * 1000;
         state.phaseDurationMs = state.intervalSec * 1000;
+        if (!state.isPaused) startRoundMusic(true);
       } else {
         state.remainingMs = state.intervalSec * 1000;
+        if (!state.isPaused) startRoundMusic(true);
       }
       state.lastCueSecond = -1;
+      state.isDucking = false;
+      updateMusicGainImmediate(false);
       updateTimerDisplay();
     });
 
-    // Next Round
+    // Next / Skip Round
     els.nextRoundBtn.addEventListener('click', () => {
       if (state.phase === 'PREP') {
         state.phase = 'WORK';
@@ -973,16 +1596,20 @@
         state.phaseDurationMs = state.intervalSec * 1000;
         state.remainingMs = state.phaseDurationMs;
         cueGoBeep();
+        if (!state.isPaused) startRoundMusic(true);
       } else if (state.currentRound < state.totalRounds) {
         state.currentRound += 1;
         state.phaseDurationMs = state.intervalSec * 1000;
         state.remainingMs = state.phaseDurationMs;
         cueGoBeep();
+        if (!state.isPaused) startRoundMusic(true);
       } else {
         finishWorkout();
         return;
       }
       state.lastCueSecond = -1;
+      state.isDucking = false;
+      updateMusicGainImmediate(false);
       updateTimerDisplay();
     });
 
@@ -998,6 +1625,7 @@
     els.confirmResetBtn.addEventListener('click', () => {
       els.resetModal.classList.add('hidden');
       cancelAnimationFrame(state.rafId);
+      stopRoundMusic();
       releaseWakeLock();
       state.phase = 'SETUP';
       state.isPaused = false;
@@ -1007,6 +1635,7 @@
 
     // Restart from Complete Screen
     els.restartBtn.addEventListener('click', () => {
+      stopRoundMusic();
       state.phase = 'SETUP';
       showScreen('SETUP');
       renderSetupUI();
